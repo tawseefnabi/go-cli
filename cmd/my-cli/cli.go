@@ -18,8 +18,8 @@ func main() {
 	// so we'll define it up here
 	myFlags := []cli.Flag{
 		cli.StringFlag{
-			Name:  "host",
-			Value: "tutorialedge.net",
+			Name:  "url",
+			Value: "www.google.com",
 		},
 	}
 
@@ -32,9 +32,11 @@ func main() {
 			// the action, or code that will be executed when
 			// we execute our `ns` command
 			Action: func(c *cli.Context) error {
+				// fmt.Println("**********cc", c)
 				// a simple lookup function
 				ns, err := net.LookupNS(c.String("url"))
 				if err != nil {
+					// fmt.Println("Error", err)
 					return err
 				}
 				// we log the results to our console
@@ -45,11 +47,54 @@ func main() {
 				return nil
 			},
 		},
+		{
+			Name:  "ip",
+			Usage: "Looks up the IP addresses for a particular host",
+			Flags: myFlags,
+			Action: func(c *cli.Context) error {
+				ip, err := net.LookupIP(c.String("url"))
+				if err != nil {
+					fmt.Println(err)
+				}
+				for i := 0; i < len(ip); i++ {
+					fmt.Println(ip[i])
+				}
+				return nil
+			},
+		},
+		{
+			Name:  "cname",
+			Usage: "Looks up the CNAME for a particular host",
+			Flags: myFlags,
+			Action: func(c *cli.Context) error {
+				cname, err := net.LookupCNAME(c.String("url"))
+				if err != nil {
+					fmt.Println(err)
+				}
+				fmt.Println(cname)
+				return nil
+			},
+		},
+		{
+			Name:  "mx",
+			Usage: "Looks up the MX records for a particular host",
+			Flags: myFlags,
+			Action: func(c *cli.Context) error {
+				mx, err := net.LookupMX(c.String("url"))
+				if err != nil {
+					fmt.Println(err)
+				}
+				for i := 0; i < len(mx); i++ {
+					fmt.Println(mx[i].Host, mx[i].Pref)
+				}
+				return nil
+			},
+		},
 	}
 
 	// start our application
 	err := app.Run(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("error", err)
 	}
 }
